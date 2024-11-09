@@ -4,28 +4,6 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 
-
-import os
-
-from groq import Groq
-
-client = Groq(
-    api_key="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",
-    )
-
-# chat_completion = client.chat.completions.create(
-#     messages=[
-#         {
-#             "role": "skin consultant",
-#             "content": "message",
-#         }
-#     ],
-#     model="llama3-8b-8192",
-# )
-
-# print(chat_completion.choices[0].message.content)
-
-
 app = FastAPI()
 
 # Add CORS middleware
@@ -59,21 +37,7 @@ class Message(BaseModel):
 async def chatbot(message: Message):
     print("message", message.message)
     
-    chat_completion = client.chat.completions.create(
-        model="llama3-8b-8192",
-        messages=[
-            {
-                "role": "system",  # Typically use 'system' for initial instructions
-                "content": "You are a skin consultant. Remember to keep the response within 30 words",
-            },
-            {
-                "role": "user",
-                "content": message.message,
-            }
-        ]
-    )
-    print('chat', chat_completion)
-    response = chat_completion.choices[0].message.content
+    response = get_chat_response(message.message)
     
     print("Chat completion response:", response)
 
@@ -81,14 +45,52 @@ async def chatbot(message: Message):
         "response": response
     }
 
-@app.post("/chat")
-async def chat(message: dict):
-    user_message = message['message']
-    # Your logic to process the message and generate a response
-    response = {"response": f"Echo: {user_message}"}
-    return response
+
+import requests
+import json
+
+def get_chat_response(user_message):
+    # Define the API endpoint and the API key
+    api_url = "https://api.vultrinference.com/v1/chat/completions"
+    api_key = "THNEJKK3MXIE7YRZ75DIL5GRYHVNSMLNXRAA"
+    
+    # Define the headers
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    # Define the payload with the user message
+    payload = {
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a skin consultant. Remember to keep the response within 30 words"
+            },
+            {
+                "role": "user",
+                "content": user_message
+            }
+        ],
+        "model": "llama2-13b-chat-Q5_K_M",
+        "max_tokens": 512,
+        "stream": False
+    }
+    
+    # Make the API request
+    response = requests.post(api_url, headers=headers, data=json.dumps(payload))
+    
+    if response.status_code == 200:
+        response_data = response.json()
+        message_content = response_data['choices'][0]['message']['content']
+        return message_content
+    else:
+        # Return error message if the request failed
+        return {"error": "Failed to get a response from the API", "status_code": response.status_code}
 
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
+    # res = get_chat_response('helo')
+    # print(res)
