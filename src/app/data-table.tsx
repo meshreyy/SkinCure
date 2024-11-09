@@ -1,3 +1,5 @@
+"use client"
+
 import { 
     Table,
     TableBody,
@@ -10,6 +12,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import Image from 'next/image'
 import React from 'react'
+import { useEffect } from "react"
 
 const columnNames = [
     "Acne", "Dryness", "Oiliness", "Itchiness", "Redness"
