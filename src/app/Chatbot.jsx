@@ -1,15 +1,10 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
-export const Chatbot: React.FC = () => {
+export const Chatbot = () => {
   const [message, setMessage] = useState("");
-  const [chatHistory, setChatHistory] = useState<
-    { sender: "user" | "bot"; message: string }[]
-  >([]);
-  const [userId, setUserId] = useState<string>(Math.random().toString(36).substring(7)); // Generate a random user ID for each session
+  const [chatHistory, setChatHistory] = useState([]);
 
   // Function to handle sending messages
   const handleSend = async () => {
@@ -17,9 +12,13 @@ export const Chatbot: React.FC = () => {
       const userMessage = message.trim();
       if (!userMessage) return;
 
-      const updatedHistory = [...chatHistory, { sender: "user", message: userMessage }];
-      setChatHistory(updatedHistory);
-      setMessage("");
+      // Append user message and bot response to chat history without mutating state
+      setChatHistory((prevChatHistory) => [
+        ...prevChatHistory,
+        { sender: "user", message: userMessage },
+      ]);
+
+      setMessage(""); // Clear input message
 
       const response = await fetch(`http://127.0.0.1:8000/chat`, {
         method: "POST",
@@ -27,14 +26,17 @@ export const Chatbot: React.FC = () => {
           "Accept": "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: userMessage, user_id: userId }),
+        body: JSON.stringify({ message: userMessage }),
       });
 
       const data = await response.json();
       const botMessage = data.response;
 
-      updatedHistory.push({ sender: "bot", message: botMessage });
-      setChatHistory(updatedHistory);
+      // Append bot message to chat history
+      setChatHistory((prevChatHistory) => [
+        ...prevChatHistory,
+        { sender: "bot", message: botMessage },
+      ]);
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -46,7 +48,7 @@ export const Chatbot: React.FC = () => {
       sender: "bot",
       message: "Hi! I'm your skincare buddy. Let's get to know your skin better!",
     };
-    setChatHistory([welcomeMessage]);
+    setChatHistory([welcomeMessage]); // Add the welcome message to the chat history
   }, []);
 
   return (

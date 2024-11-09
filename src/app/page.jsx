@@ -1,5 +1,4 @@
 "use client";
-
 import { Textarea } from "@/components/ui/textarea";
 import React, { useState, useEffect } from 'react';
 import { RJTable, ResultTable } from "./data-table";
@@ -17,7 +16,6 @@ export default function Home() {
   const [tableData, setTableData] = useState(initialData);
   const [page, setPageNumber] = useState(1);
   const [message, setMessage] = useState('');
-  const [response, setResponse] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
 
   const handleNextClick = () => {
@@ -56,7 +54,6 @@ export default function Home() {
       setChatHistory(updatedHistory);
     } catch (error) {
       console.error('Error sending message:', error);
-      setResponse('Error sending message');
     }
   };
 
@@ -104,4 +101,3 @@ export default function Home() {
     </div>
   );
 }
-//changed once

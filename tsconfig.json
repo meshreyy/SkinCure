@@ -22,6 +22,9 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/bar-chart.sx", "src/app/Chatbot.jsx", "src/app/columns.tsx", "src/app/data-table.jsx", "src/app/page.jsx", "src/app/layout.tsx", "src/app/accord/page.jsx"],
+  "exclude": ["node_modules"],
+  "rules": {
+    "@typescript-eslint/no-empty-object-type": "off"
+  }
 }
